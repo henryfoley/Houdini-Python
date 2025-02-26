@@ -31,3 +31,8 @@ def main():
     geo.addAttrib(hou.attribType.Global, "globalAttribInt", 0)
     geo.addAttrib(hou.attribType.Global, "globalAttribStr", "")
     geo.setGlobalAttribValue("globalAttribStr", "value")
+
+    # Arrays
+    labels = ["test","testing"]
+    geo.addAttrib(hou.attribType.Global, "label_names", [''])
+    geo.setGlobalAttribValue('label_names',labels)
