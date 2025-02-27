@@ -1,0 +1,15 @@
+{
+    "image_embedding_width": 768,
+    "image_encoding_width": 1024,
+    "image_flops": 174710792192.0,
+    "image_params": 302915584.0,
+    "image_size": 336,
+    "logit_scale": 4.605170249938965,
+    "name": "clip-vit-large-patch14-336",
+    "repo_created_at": 1650639463.0,
+    "repo_id": "openai/clip-vit-large-patch14-336",
+    "text_embedding_width": 768,
+    "text_encoding_width": 768,
+    "text_flops": 1190160384.0,
+    "text_params": 85056000.0
+}

@@ -16,3 +16,5 @@ Files/DefaultPyProject/scripts/python/__pycache__/
 Files/Scripts/__pycache__/
 
 Files/DefaultPyProject/scripts/python/DEFAULT_SCRIPTS/__pycache__/
+
+*.onnx
