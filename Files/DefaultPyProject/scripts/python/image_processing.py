@@ -16,10 +16,6 @@ def load_preprocessor_config(json_path):
 
 
 def preprocess_image_for_clip(grid_node, preprocessor_json = None):
-    
-    # TODO delete
-    grid_node : hou.SopNode = hou.pwd()
-
     if preprocessor_json is None:
         # Default CLIP settings
         config = {
@@ -30,13 +26,16 @@ def preprocess_image_for_clip(grid_node, preprocessor_json = None):
                                         "std": [0.26862955, 0.26130259, 0.27577711]}
             ]
         }
+        raise hou.NodeWarning("Using default CLIP settings")
     elif isinstance(preprocessor_json, str):
         config = load_preprocessor_config(preprocessor_json)
     else:
         config = preprocessor_json
 
     # Initialize parameters to extract from config
-    image_size, mean, std = None
+    image_size = None 
+    mean = None 
+    std = None
 
     # Extract parameters from config
     for stage in config.get("stages",[]):
@@ -47,8 +46,8 @@ def preprocess_image_for_clip(grid_node, preprocessor_json = None):
             std = stage.get("std")
 
     # Handle missing values after parsing config
-    if image_size or mean or std is None:
-        raise hou.NodeError("Config values missing")
+    if None in (image_size, mean, std):
+        raise hou.NodeError(f"Config values missing. Image Size: {image_size}, mean: {mean}, std: {std}")
     
     height, width = image_size
 
@@ -80,7 +79,7 @@ def preprocess_image_for_clip(grid_node, preprocessor_json = None):
     # Apply normilization
     if np.max(image_np) > 1.0:
         image_np = image_np/255.0
-        
+
     mean_np = np.array(mean)
     std_np = np.array(std)
     image_np = (image_np - mean_np) / std_np
@@ -90,3 +89,6 @@ def preprocess_image_for_clip(grid_node, preprocessor_json = None):
     image_np = np.expand_dims(image_np, axis=0)
 
     return image_np
+
+def feed_to_onnx_node(image_np, onnx_node_path):
+    onnx_node = hou.node(onnx_node_path)
