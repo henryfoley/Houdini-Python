@@ -87,8 +87,71 @@ def preprocess_image_for_clip(grid_node, preprocessor_json = None):
     # Reorder RGB format
     image_np = np.transpose(image_np,(2,0,1))
     image_np = np.expand_dims(image_np, axis=0)
-
+  
     return image_np
 
-def feed_to_onnx_node(image_np, onnx_node_path):
-    onnx_node = hou.node(onnx_node_path)
+def tensor_to_point_attributes(image_np, target_geo, attribute_name="tensor_data"):
+    """
+    Convert normalized tensor data to point attributes on a grid geometry
+    
+    Args:
+        image_np: The preprocessed numpy tensor [1, 3, 336, 336]
+        target_geo: Target geometry to set attributes on
+        attribute_name: Name of the attribute to create
+    """
+    # Remove batch dimension and transpose back to [height, width, channels]
+    tensor_data = np.transpose(image_np[0], (1, 2, 0))
+    
+    # Get dimensions
+    height, width, channels = tensor_data.shape
+    
+    # Create float attribute if it doesn't exist
+    tensor_attrib = target_geo.findPointAttrib(attribute_name)
+    if tensor_attrib is None:
+        tensor_attrib = target_geo.addAttrib(hou.attribType.Point, attribute_name, (0.0, 0.0, 0.0))
+    
+    # Get all points
+    points = target_geo.points()
+    
+    # Set attribute values for each point based on position
+    for point in points:
+        pos = point.position()
+        i = int((1.0 - pos[1]) * (height-1))    # Y coordinate
+        j = int(pos[0] * (width-1))             # X coordinate
+        
+        if 0 <= i < height and 0 <= j < width:
+            # Get tensor values at this position (all channels)
+            tensor_value = tensor_data[i, j, :]
+            
+            # Set attribute (first 3 channels if there are more)
+            if channels >= 3:
+                point.setAttribValue(tensor_attrib, (
+                    float(tensor_value[0]),
+                    float(tensor_value[1]),
+                    float(tensor_value[2])
+                ))
+            else:
+                # Handle case with fewer channels
+                values = [float(tensor_value[c]) for c in range(min(3, channels))]
+                while len(values) < 3:
+                    values.append(0.0)  # Pad with zeros if needed
+                point.setAttribValue(tensor_attrib, tuple(values))
+
+"""def feed_to_onnx_node(image_np, onnx_node_path):
+    onnx_node : hou.SopNode = hou.node(onnx_node_path)
+
+    # Tensor dimensions
+    batch, channels, height, width = image_np.shape
+
+    # Geometry to hold the volume
+    image_vol = hou.Geometry()
+
+    volume : hou.Volume = image_vol.createVolume(
+        xres=width,
+        yres=height,
+        zres=channels
+    )
+
+    # Fill volume with tensor data
+    flattened_data = image_np.reshape(-1).tolist()
+    volume.setAllVoxels(flattened_data)"""
