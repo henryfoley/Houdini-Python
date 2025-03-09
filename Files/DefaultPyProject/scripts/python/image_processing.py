@@ -15,7 +15,70 @@ def load_preprocessor_config(json_path):
     return config
 
 
-def preprocess_image_for_clip(grid_node, preprocessor_json = None):
+def preprocess_image(grid_node, preprocessor_json = None):
+    if preprocessor_json is None:
+        # Default CLIP settings
+        config = {
+            "stages": [
+                {"type": "resize", "size": 336},
+                {"type": "center_crop", "size": [336, 336]},
+                {"type": "normalize", "mean": [0.48145467, 0.45782751, 0.40821072], 
+                                        "std": [0.26862955, 0.26130259, 0.27577711]}
+            ]
+        }
+        raise hou.NodeWarning("Using default CLIP settings")
+    elif isinstance(preprocessor_json, str):
+        config = load_preprocessor_config(preprocessor_json)
+    else:
+        config = preprocessor_json
+
+    # Initialize parameters to extract from config
+    image_size = None 
+    mean = None 
+    std = None
+
+    # Extract parameters from config
+    for stage in config.get("stages",[]):
+        if stage.get("type") == "center_crop":
+            image_size = stage.get("size")
+        elif stage.get("type") == "normalize":
+            mean = stage.get("mean")
+            std = stage.get("std")
+
+    # Convert mean and std to numpy array
+    mean_np = np.array(mean)
+    std_np = np.array(std)
+
+    # Handle missing values after parsing config
+    if None in (image_size, mean, std):
+        raise hou.NodeError(f"Config values missing. Image Size: {image_size}, mean: {mean}, std: {std}")
+    
+    # Get the grid geometry
+    geo : hou.Geometry = grid_node.geometry()
+    
+    # Add tensor attribute
+    tensor_attrib = geo.addAttrib(hou.attribType.Point, "tensor_data", (0.0, 0.0, 0.0))
+
+    # Get color attribute of grid
+    color_attrib = geo.findPointAttrib("Cd")
+
+    # Apply mean and std to each point
+    points = geo.points()
+    point : hou.Point
+
+    for point in points:
+        color = point.attribValue(color_attrib)
+        color = np.array(color)
+        color = (color - mean_np) / std_np
+
+        point.setAttribValue(tensor_attrib, (
+                    float(color[0]),
+                    float(color[1]),
+                    float(color[2])
+                ))
+
+
+"""def preprocess_image_for_clip(grid_node, preprocessor_json = None):
     if preprocessor_json is None:
         # Default CLIP settings
         config = {
@@ -128,4 +191,4 @@ def tensor_to_point_attributes(image_np, target_geo : hou.Geometry, attribute_na
                 values = [float(tensor_value[c]) for c in range(min(3, channels))]
                 while len(values) < 3:
                     values.append(0.0)  # Pad with zeros if needed
-                point.setAttribValue(tensor_attrib, tuple(values))
+                point.setAttribValue(tensor_attrib, tuple(values))"""
