@@ -76,7 +76,7 @@ def preprocess_image_for_clip(grid_node, preprocessor_json = None):
             image_np[i,j,1] = color[1]  # G
             image_np[i,j,2] = color[2]  # B
 
-    # Apply normilization
+    # Apply normilization if not in 0-1 color range
     if np.max(image_np) > 1.0:
         image_np = image_np/255.0
 
@@ -90,15 +90,7 @@ def preprocess_image_for_clip(grid_node, preprocessor_json = None):
   
     return image_np
 
-def tensor_to_point_attributes(image_np, target_geo, attribute_name="tensor_data"):
-    """
-    Convert normalized tensor data to point attributes on a grid geometry
-    
-    Args:
-        image_np: The preprocessed numpy tensor [1, 3, 336, 336]
-        target_geo: Target geometry to set attributes on
-        attribute_name: Name of the attribute to create
-    """
+def tensor_to_point_attributes(image_np, target_geo : hou.Geometry, attribute_name="tensor_data"):
     # Remove batch dimension and transpose back to [height, width, channels]
     tensor_data = np.transpose(image_np[0], (1, 2, 0))
     
@@ -112,6 +104,7 @@ def tensor_to_point_attributes(image_np, target_geo, attribute_name="tensor_data
     
     # Get all points
     points = target_geo.points()
+    point : hou.Point
     
     # Set attribute values for each point based on position
     for point in points:
@@ -136,22 +129,3 @@ def tensor_to_point_attributes(image_np, target_geo, attribute_name="tensor_data
                 while len(values) < 3:
                     values.append(0.0)  # Pad with zeros if needed
                 point.setAttribValue(tensor_attrib, tuple(values))
-
-"""def feed_to_onnx_node(image_np, onnx_node_path):
-    onnx_node : hou.SopNode = hou.node(onnx_node_path)
-
-    # Tensor dimensions
-    batch, channels, height, width = image_np.shape
-
-    # Geometry to hold the volume
-    image_vol = hou.Geometry()
-
-    volume : hou.Volume = image_vol.createVolume(
-        xres=width,
-        yres=height,
-        zres=channels
-    )
-
-    # Fill volume with tensor data
-    flattened_data = image_np.reshape(-1).tolist()
-    volume.setAllVoxels(flattened_data)"""
