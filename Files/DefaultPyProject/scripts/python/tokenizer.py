@@ -47,14 +47,27 @@ def create_point_inputs(tokens):
         flat_mask = padded_attention_mask.flatten()
 
         # Add input_ids and attention_mask attributes
-        input_ids_attr = geo.addArrayAttrib(hou.attribType.Point, "input_ids", hou.attribData.Int, len(flat_ids))
-        attention_mask_attr = geo.addArrayAttrib(hou.attribType.Point, "attention_mask", hou.attribData.Int, len(flat_mask))
+        #input_ids_attr = geo.addArrayAttrib(hou.attribType.Point, "input_ids", hou.attribData.Int, len(flat_ids))
+        #attention_mask_attr = geo.addArrayAttrib(hou.attribType.Point, "attention_mask", hou.attribData.Int, len(flat_mask))
         # Set the attributes of the point
         # point.setAttribValue(input_ids_attrib, ids)
         # point.setAttribValue(input_ids_attrib, [0,0,0])
         # geo.setGlobalAttribValue(input_ids_attr, padded_input_ids)
         # point.setAttribValue(attention_mask_attrib, mask)
        # geo.setGlobalAttribValue("input_ids", flat_ids)
+
+        for i in range(padded_input_ids.shape[1]):
+            point : hou.Point = geo.createPoint()
+            
+            # Create integer attributes for each token and mask value
+            if not geo.findPointAttrib("input_ids"):
+                geo.addAttrib(hou.attribType.Point, "input_ids", 0)
+            point.setAttribValue("input_ids", int(padded_input_ids[0, i]))
+            
+            if not geo.findPointAttrib("attention_mask"):
+                geo.addAttrib(hou.attribType.Point, "attention_mask", 0)
+            point.setAttribValue("attention_mask", int(padded_attention_mask[0, i]))
+        
 
 
     else: 
