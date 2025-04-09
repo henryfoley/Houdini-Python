@@ -26,12 +26,6 @@ def create_point_inputs(tokens):
         node = hou.pwd()
         geo : hou.Geometry = node.geometry()
 
-        # Create Point
-        #point : hou.Point = geo.createPoint()
-
-        # Set the position of the point
-        #point.setPosition((0, 0, 0)) # X, Y, Z coordinates
-
         # Reformat attributes
         target_length = 77
         padding_length = max(0, target_length - len(ids))
@@ -42,20 +36,7 @@ def create_point_inputs(tokens):
         padded_input_ids = padded_input_ids.reshape(1, -1)
         padded_attention_mask = padded_attention_mask.reshape(1,-1)
 
-        # Flatten arrays to 1D for storage
-        flat_ids = padded_input_ids.flatten()
-        flat_mask = padded_attention_mask.flatten()
-
         # Add input_ids and attention_mask attributes
-        #input_ids_attr = geo.addArrayAttrib(hou.attribType.Point, "input_ids", hou.attribData.Int, len(flat_ids))
-        #attention_mask_attr = geo.addArrayAttrib(hou.attribType.Point, "attention_mask", hou.attribData.Int, len(flat_mask))
-        # Set the attributes of the point
-        # point.setAttribValue(input_ids_attrib, ids)
-        # point.setAttribValue(input_ids_attrib, [0,0,0])
-        # geo.setGlobalAttribValue(input_ids_attr, padded_input_ids)
-        # point.setAttribValue(attention_mask_attrib, mask)
-       # geo.setGlobalAttribValue("input_ids", flat_ids)
-
         for i in range(padded_input_ids.shape[1]):
             point : hou.Point = geo.createPoint()
             
