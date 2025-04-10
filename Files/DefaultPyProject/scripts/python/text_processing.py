@@ -5,10 +5,10 @@ import torch
 import tokenizer as tk
 
 # Load model directly
-from transformers import AutoProcessor, AutoModelForZeroShotImageClassification
+from transformers import AutoProcessor, CLIPModel
 
 processor = AutoProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
-model = AutoModelForZeroShotImageClassification.from_pretrained("openai/clip-vit-large-patch14-336")
+model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14-336")
 
 def load_tokenizer_config(json_path):
     # Read tokenizer configuration from json
