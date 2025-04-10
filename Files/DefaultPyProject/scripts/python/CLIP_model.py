@@ -41,10 +41,6 @@ def make_flipbook(start, end, filename = ''):
     
     return filename
 
-def load_image_as_variable(image_path):
-    test = Image.open(image_path)
-    return Image.open(image_path)
-
 node = hou.pwd()
 geo : hou.Geometry = node.geometry()
 geo.addAttrib(hou.attribType.Point, "class", "")
