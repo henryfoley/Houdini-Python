@@ -41,6 +41,9 @@ def make_flipbook(start, end, filename = ''):
     
     return filename
 
+def load_image_as_variable(image_path):
+    test = Image.open(image_path)
+    return Image.open(image_path)
 
 node = hou.pwd()
 geo : hou.Geometry = node.geometry()
@@ -48,10 +51,10 @@ geo.addAttrib(hou.attribType.Point, "class", "")
 geo.addAttrib(hou.attribType.Point, "prob", 0.0)
 
 # %% Zero-shot classification
-def run_model():
-    filename = "images/hotdog.jpg"
-    image = Image.open(filename)
-    classes = ['giraffe', 'elephant', 'teddybear', 'hotdog']
+def run_model(image_filename):
+    #image_filename = "images/hotdog.jpg"
+    image = Image.open(image_filename)
+    classes = ['pig', 'man', 'squid', 'hotdog']
     inputs = processor(text=classes, images=image, return_tensors="pt", padding=True)
 
     outputs = model(**inputs)
