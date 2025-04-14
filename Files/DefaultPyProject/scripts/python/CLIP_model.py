@@ -11,8 +11,18 @@ def make_flipbook(start, end, filename = ''):
     scene : hou.SceneViewer = toolutils.sceneViewer()
     view : hou.GeometryViewport = scene.curViewport()
 
-    camera_path = "obj/cam1"
+    camera_path = "/obj/cam1"
     camera_node : hou.GeometryViewportCamera = hou.node(camera_path)
+    root = hou.node('/')
+    camera_nodes = root.recursiveGlob('*', hou.nodeTypeFilter.ObjCamera)
+    camera_node = camera_nodes[0]
+    if camera_node:
+        print("cam1 found")
+    else:
+        for camera in camera_nodes:
+            camera : hou.GeometryViewportCamera
+            print(f"Camera: {camera.path()}")
+
     original_camera = view.camera()
     view.setCamera(camera_node)
 
