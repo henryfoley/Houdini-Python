@@ -2,10 +2,7 @@ import hou
 import toolutils
 import tempfile
 from PIL import Image
-from transformers import CLIPProcessor, CLIPModel
 
-model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 def make_flipbook(start, end, camera_node, filename = ''):
     # Init Scene
@@ -41,9 +38,10 @@ node = hou.pwd()
 geo : hou.Geometry = node.geometry()
 geo.addAttrib(hou.attribType.Point, "class", "")
 geo.addAttrib(hou.attribType.Point, "prob", 0.0)
+geo.addAttrib(hou.attribType.Point, "camera", "")
 
 # %% Zero-shot classification
-def run_model(image_filename, classes):
+def run_model(model, processor, image_filename, classes):
     image = Image.open(image_filename)
     inputs = processor(text=classes, images=image, return_tensors="pt", padding=True)
 
