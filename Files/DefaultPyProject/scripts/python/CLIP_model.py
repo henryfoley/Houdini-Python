@@ -50,7 +50,9 @@ def run_model(model, processor, image_filename, classes):
     probs = logits_per_image.softmax(dim=1)  # we can take the softmax to get the label probabilities
     probs = probs[0].detach().numpy()
 
-    for id in range(len(probs)):
+    """for id in range(len(probs)):
         point : hou.Point = geo.createPoint()
         point.setAttribValue("class", classes[id])
-        point.setAttribValue("prob", float(probs[id]))
+        point.setAttribValue("prob", float(probs[id]))"""
+    
+    return probs
